@@ -6,7 +6,7 @@ Description: Mixture of logistic regressions parameters (H)estimation with
     (General Linear Model). For more details see chapter 3 in the PhD thesis of
 		Mor-Absa Loum: <https://www.theses.fr/s156435>, available here
 		<https://theses.hal.science/tel-01877796/document>.
-Version: 1.0-3
+Version: 1.0-4
 Author: Benjamin Auder <Benjamin.Auder@u-psud.fr> [aut,cre],
     Mor-Absa Loum <Mor-Absa.Loum@u-psud.fr> [aut]
 Maintainer: Benjamin Auder <Benjamin.Auder@u-psud.fr>
