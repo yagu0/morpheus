@@ -1,2 +1,2 @@
 [rsync]
-remote = gitfat@auder.net:~/files/morpheus
+remote = gitfat@auder.net:files/morpheus
