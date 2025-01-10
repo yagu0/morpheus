@@ -44,12 +44,12 @@ $Y=1$ conditionally to $X=x$ is given by $g(\langle \beta, x \rangle +b)$, where
 $\beta\in \R^{d}$ is the vector of regression coefficients and $b\in\R$ is the intercept.
 Popular examples of link functions are the logit link function where for any real $z$,
 $g(z)=e^z/(1+e^z)$ and the probit link function where $g(z)=\Phi(z),$ with $\Phi$
-the cumulative distribution function of the standard normal ${\cal N}(0,1)$.
+the cumulative distribution function of the standard normal ${\mathcal N}(0,1)$.
 Both are implemented in the package.
 
 If now we want to modelise heterogeneous populations, let $K$ be the number of
 populations and $\omega=(\omega_1,\cdots,\omega_K)$ their weights such that
-$\omega_{j}\geq 0$, $j=1,\ldots,K$ and $\sum_{j=1}^{K}\omega{j}=1$.
+$\omega_{j}\geq 0$, $j=1,\ldots,K$ and $\sum_{j=1}^{K}\omega_{j}=1$.
 Define, for $j=1,\ldots,K$, the regression coefficients in the $j$-th population
 by $\beta_{j}\in\R^{d}$ and the intercept in the $j$-th population by
 $b_{j}\in\R$. Let $\omega =(\omega_{1},\ldots,\omega_{K})$,
@@ -78,10 +78,12 @@ where $X\sim \mathcal{N}(m,\Sigma)$, $m\in \R^{d}$, $\Sigma$ a positive and
 symetric $d\times d$ matrix. ***** TODO: take this into account? -->
 
 The two main functions are:
+
  * computeMu(), which estimates the parameters directions, and
  * optimParams(), which builds an object \code{o} to estimate all other parameters
    when calling \code{o$run()}, starting from the directions obtained by the
    previous function.
+
 A third function is useful to run Monte-Carlo or bootstrap estimations using
 different models in various contexts: multiRun(). We'll show example for all of them.
 
@@ -127,9 +129,8 @@ The other parameters are estimated by solving an optimization problem.
 The following function builds and return an optimization algorithm object:
 
 ```{r, results="show", include=TRUE, echo=TRUE}
-M <- computeMoments(io$X, io$Y)
-# X and Y must be provided if the moments matrix is not given
-algopt <- optimParams(K=2, link="probit", optargs=list(M=M))
+# M <- computeMoments(io$X, io$Y) #optional (if several runs)
+algopt <- optimParams(io$X, io$Y, K=2, link="probit") #, M=M)
 # Optimization starts at beta = mu, b = 0 and p = uniform distribution
 x0 <- list(beta = mu)
 theta <- algopt$run(x0)
@@ -194,7 +195,7 @@ see ?plotHist).
 
 ```{r, results="show", include=TRUE, echo=TRUE}
 # Second row, first column; morpheus on the left, flexmix on the right
-plotBox(mr1, 2, 1, "Target value: -1")
+plotBox(mr1, 2, 1, main="Target value: -1")
 ```
 
 ```{r, results="show", include=TRUE, echo=TRUE}
@@ -204,7 +205,7 @@ mr2 <- multiRun(list(n=1000,p=1/2,beta=beta,b=c(0,0),optargs=list(link="logit"))
   function(fargs) {
     library(morpheus)
     mu <- computeMu(fargs$X, fargs$Y, fargs$optargs)
-    optimParams(fargs$K,fargs$link,fargs$optargs)$run(list(beta=mu))$beta
+    optimParams(fargs$X,fargs$Y,fargs$K,fargs$link,fargs$M)$run(list(beta=mu))$beta
   },
   # flexmix
   function(fargs) {
@@ -222,7 +223,7 @@ mr2 <- multiRun(list(n=1000,p=1/2,beta=beta,b=c(0,0),optargs=list(link="logit"))
     fargs$Y = io$Y
     fargs$K = ncol(fargs$beta)
     fargs$link = fargs$optargs$link
-    fargs$optargs$M = computeMoments(io$X,io$Y)
+    fargs$M = computeMoments(io$X,io$Y)
     fargs
   }, N=10, ncores=3)
 # As in example 1, align results:
@@ -232,6 +233,7 @@ for (i in 1:2)
 
 ```{r, results="show", include=TRUE, echo=TRUE}
 # Second argument = true parameters matrix; third arg = index of method (here "morpheus")
-plotCoefs(mr2, beta, 1)
+plotCoefs(mr2[[1]], beta, 1)
+plotCoefs(mr2[[2]], beta, 1)
 # Real params are on the continous line; estimations = dotted line
 ```

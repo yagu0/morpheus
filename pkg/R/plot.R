@@ -88,8 +88,7 @@ plotBox <- function(mr, x, y, ...)
   args <- list(...)
   for (i in 1:L)
   {
-    boxplot(params[[i]],
-      ifelse("ylab" %in% names(args), args$ylab, "Parameter value"))
+    boxplot(params[[i]], ...)
   }
 }
 

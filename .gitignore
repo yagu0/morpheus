@@ -1,3 +1,5 @@
+/_unversioned/
+
 #ignore roxygen2 generated files
 *.Rd
 !*-package.Rd
@@ -13,9 +15,10 @@
 /reports/*
 !/reports/*.R
 !/reports/*.sh
+/vignettes/cache/
+/vignettes/figure/
 /vignettes/report.html
-/vignettes/report_cache/
-/vignettes/report_files/
+/vignettes/report.md
 /vignettes/*.zip
 
 #ignore R session files
