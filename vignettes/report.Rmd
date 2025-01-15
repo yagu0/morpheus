@@ -237,3 +237,25 @@ plotCoefs(mr2[[1]], beta, 1)
 plotCoefs(mr2[[2]], beta, 1)
 # Real params are on the continous line; estimations = dotted line
 ```
+
+### Computation of p-values
+
+In order to select the most important variables, it is natural to test wether the coefficients are zero.
+That is to say, we would like to check the hypothesis $H_0: \beta_{jk} = 0$ versus $H_1: \beta_{jk} \neq 0$.
+It is shown in [TODO_citation] that $\frac{\hat \beta_{jk}^2}{\hat \Var(\beta_{jk})}$ converges toward a $\Chi^2(1)$ law,
+where $\hat \Var(\beta_{jk})$ is the empirical variance (computed by bootstrap).
+Using this approximation, it is easy to provide a p-value for each estimated coefficient.
+
+```{r, results="show", include=TRUE, echo=TRUE}
+pval1 <- matrix(nrow=2, ncol=2)
+for (x in 1:2) {
+  for (y in 1:2) {
+    coefs <- sapply(mr2[[1]], function(m) m[x,y])
+    stat_test <- mean(coefs^2) / var(coefs)
+    pval1[x, y] <- 1 - pchisq(stat_test, 1)
+  }
+}
+pval1
+```
+
+<!-- Mor Absa Loum. Modèle de mélange et modèles linéaires généralisés, application aux données de co-infection (arbovirus &amp; paludisme). Probabilités [math.PR]. Université Paris-Saclay; Université de Saint-Louis (Sénégal), 2018. Français. ⟨NNT : 2018SACLS299⟩. ⟨tel-01877796⟩ -->
