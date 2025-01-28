@@ -1,3 +1,4 @@
+/data/
 /_unversioned/
 
 #ignore roxygen2 generated files
@@ -20,6 +21,7 @@
 /vignettes/report.html
 /vignettes/report.md
 /vignettes/*.zip
+/vignettes/report_*/
 
 #ignore R session files
 .Rhistory
