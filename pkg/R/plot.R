@@ -8,8 +8,7 @@
 #
 .extractParam <- function(mr, x=1, y=1)
 {
-  if (is.list(mr[[1]]))
-  {
+  if (is.list(mr[[1]])) {
     # Obtain L vectors where L = number of res lists in mr
     return ( lapply( mr, function(mr_list) {
       sapply(mr_list, function(m) m[x,y])
@@ -47,8 +46,7 @@ plotHist <- function(mr, x, y, ...)
   # Plot histograms side by side
   par(mfrow=c(1,L), cex.axis=1.5, cex.lab=1.5, mar=c(4.7,5,1,1))
   args <- list(...)
-  for (i in 1:L)
-  {
+  for (i in 1:L) {
     hist(params[[i]], breaks=40, freq=FALSE,
       xlab=ifelse("xlab" %in% names(args), args$xlab, "Parameter value"),
       ylab=ifelse("ylab" %in% names(args), args$ylab, "Density"))
@@ -85,11 +83,8 @@ plotBox <- function(mr, x, y, ...)
   L <- length(params)
   # Plot boxplots side by side
   par(mfrow=c(1,L), cex.axis=1.5, cex.lab=1.5, mar=c(4.7,5,1,1))
-  args <- list(...)
   for (i in 1:L)
-  {
     boxplot(params[[i]], ...)
-  }
 }
 
 #' plotCoefs
@@ -124,10 +119,8 @@ plotCoefs <- function(mr, params, ...)
 
   params_hat <- matrix(nrow=d, ncol=K)
   stdev <- matrix(nrow=d, ncol=K)
-  for (x in 1:d)
-  {
-    for (y in 1:K)
-    {
+  for (x in 1:d) {
+    for (y in 1:K) {
       estims <- .extractParam(mr, x, y)
       params_hat[x,y] <- mean(estims)
       # Another way to compute stdev: using distances to true params

@@ -18,6 +18,33 @@ normalize <- function(x)
   sweep(x, 2, norm2, '/')
 }
 
+#' pvalue
+#'
+#' Compute the p-values of the tests beta[i,j] == 0 vs != 0
+#'
+#' @param mr A list of matrices as output by multiRun()
+#'
+#' @return The matrix of p-values (same size as mr[[1]])
+#'
+#' @examples
+#' mr <- multiRun(...) #cf ?multiRun
+#' p <- pvalue(mr[[1]])
+#' @export
+pvalue <- function(mr)
+{
+  n = nrow(mr[[1]])
+  m = ncol(mr[[1]])
+  pval <- matrix(nrow=n, ncol=m)
+  for (x in 1:n) {
+    for (y in 1:m) {
+      coefs <- sapply(mr, function(m) m[x,y])
+      stat_test <- mean(coefs^2) / var(coefs)
+      pval[x, y] <- 1 - pchisq(stat_test, 1)
+    }
+  }
+  pval
+}
+
 # Computes a tensor-vector product
 #
 # @param Te third-order tensor (size dxdxd)
