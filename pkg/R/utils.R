@@ -27,7 +27,8 @@ normalize <- function(x)
 #' @return The matrix of p-values (same size as mr[[1]])
 #'
 #' @examples
-#' mr <- multiRun(...) #cf ?multiRun
+#' # Next line should be a real call to multiRun()
+#' mr <- list( list(matrix(c(1,2,3,4),ncol=2),matrix(c(2,2,1,1),ncol=2)) )
 #' p <- pvalue(mr[[1]])
 #' @export
 pvalue <- function(mr)
