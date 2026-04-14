@@ -1,5 +1,6 @@
 test_that("HungarianAlgorithm provides the correct answer on various inputs",
 {
+  set.seed(42)
   for (n in c(2,3,10,50))
   {
     for (repetition in 1:3)

@@ -1,5 +1,6 @@
 test_that("on input of sufficient size, β/||β|| is estimated accurately enough",
 {
+  set.seed(42)
   n <- 100000
   d <- 2
   K <- 2

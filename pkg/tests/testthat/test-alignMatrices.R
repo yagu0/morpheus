@@ -13,6 +13,7 @@
 
 test_that("labelSwitchingAlign correctly aligns de-noised parameters",
 {
+  set.seed(32)
   N <- 30 #number of matrices
   d_K_list <- list(c(2,2), c(5,3))
   for (i in 1:2)
@@ -41,6 +42,7 @@ test_that("labelSwitchingAlign correctly aligns de-noised parameters",
 
 test_that("labelSwitchingAlign correctly aligns noisy parameters",
 {
+  set.seed(32)
   N <- 30 #number of matrices
   d_K_list <- list(c(2,2), c(5,3))
   for (i in 1:2)

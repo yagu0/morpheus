@@ -1,6 +1,7 @@
 #auxiliary to test diagonality
 .computeMuCheckDiag = function(X, Y, K, jd_method, β_ref)
 {
+  set.seed(99)
   d <- ncol(X)
   #TODO: redundant code, same as computeMu() main method. Comments are stripped
   M3 <- .Moments_M3(X,Y)
@@ -30,6 +31,7 @@
 
 test_that("'jedi' and 'uwedge' joint-diagonalization methods return a correct matrix",
 {
+  set.seed(99)
   n <- 10000
   d_K <- list( c(2,2), c(5,3), c(20,13) )
 
