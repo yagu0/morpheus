@@ -48,6 +48,7 @@ naive_f <- function(link, M1,M2,M3, p,β,b)
 # TODO: understand why delta is so large (should be 10^-6 10^-7 ...)
 test_that("naive computation provides the same result as vectorized computations",
 {
+  set.seed(7)
   h <- 1e-7 #for finite-difference tests
   n <- 10
   for (dK in list( c(2,2), c(5,3)))
@@ -88,6 +89,7 @@ test_that("naive computation provides the same result as vectorized computations
 
 test_that("W computed in C and in R are the same",
 {
+  set.seed(7)
   tol <- 1e-8
   n <- 10
   for (dK in list( c(2,2))) #, c(5,3)))
