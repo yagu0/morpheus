@@ -11,6 +11,7 @@
 #'
 #' @param fargs List of arguments for the estimation functions
 #' @param estimParams List of nf function(s) to apply on fargs
+#' @param packages Vector of packages to load on each node (default: morpheus)
 #' @param prepareArgs Prepare arguments for the functions inside estimParams
 #' @param N Number of runs
 #' @param ncores Number of cores for parallel runs (<=1: sequential)
@@ -29,13 +30,11 @@
 #' res <- multiRun(list(X=io$X,Y=io$Y,K=2), list(
 #'   # morpheus
 #'   function(fargs) {
-#'     library(morpheus)
 #'     ind <- fargs$ind
 #'     computeMu(fargs$X[ind,], fargs$Y[ind], list(K=fargs$K))
 #'   },
 #'   # flexmix
 #'   function(fargs) {
-#'     library(flexmix)
 #'     ind <- fargs$ind
 #'     K <- fargs$K
 #'     dat <- as.data.frame( cbind(fargs$Y[ind],fargs$X[ind,]) )
@@ -43,6 +42,7 @@
 #'       model=FLXMRglm(family="binomial") ) )
 #'     normalize( matrix(out@@coef[1:(ncol(fargs$X)*K)], ncol=K) )
 #'   } ),
+#'   packages = c("morpheus", "flexmix"),
 #'   prepareArgs = function(fargs,index) {
 #'     if (index == 1)
 #'       fargs$ind <- 1:nrow(fargs$X)
@@ -57,7 +57,6 @@
 #' res <- multiRun(list(n=1000,p=1/2,β=β,b=c(0,0),link="logit"), list(
 #'   # morpheus
 #'   function(fargs) {
-#'     library(morpheus)
 #'     K <- fargs$K
 #'     μ <- computeMu(fargs$X, fargs$Y, list(K=fargs$K))
 #'     o <- optimParams(fargs$X, fargs$Y, fargs$K, fargs$link, fargs$M)
@@ -65,7 +64,6 @@
 #'   },
 #'   # flexmix
 #'   function(fargs) {
-#'     library(flexmix)
 #'     K <- fargs$K
 #'     dat <- as.data.frame( cbind(fargs$Y,fargs$X) )
 #'     out <- refit( flexmix( cbind(V1, 1 - V1) ~ ., data=dat, k=K,
@@ -73,6 +71,7 @@
 #'     sapply( seq_len(K), function(i)
 #'       as.double( out@@components[[1]][[i]][2:(1+ncol(fargs$X)),1] ) )
 #'   } ),
+#'   packages = c("morpheus", "flexmix"),
 #'   prepareArgs = function(fargs,index) {
 #'     library(morpheus)
 #'     io <- generateSampleIO(fargs$n, fargs$p, fargs$β, fargs$b, fargs$link)
@@ -86,7 +85,7 @@
 #' for (i in 1:2)
 #'   res[[i]] <- alignMatrices(res[[i]], ref=β, ls_mode="exact")}
 #' @export
-multiRun <- function(fargs, estimParams,
+multiRun <- function(fargs, estimParams, packages = c("morpheus"),
   prepareArgs = function(x,i) x, N=10, ncores=3, agg=lapply, verbose=FALSE)
 {
   if (!is.list(fargs))
@@ -118,15 +117,23 @@ multiRun <- function(fargs, estimParams,
     })
   }
 
+  loadPackages <- function() {
+    for (p in packages)
+      library(p, character.only = TRUE)
+  }
+
   if (ncores > 1)
   {
     cl <- parallel::makeCluster(ncores, outfile="")
-    parallel::clusterExport(cl, c("fargs","verbose"), environment())
+    parallel::clusterExport(cl, c("fargs", "verbose", "loadPackages"), environment())
+    parallel::clusterEvalQ(cl, loadPackages() )
     list_res <- parallel::clusterApplyLB(cl, 1:N, estimParamAtIndex)
     parallel::stopCluster(cl)
   }
-  else
+  else {
+    loadPackages()
     list_res <- lapply(1:N, estimParamAtIndex)
+  }
 
   # De-interlace results: output one list per function
   nf <- length(estimParams)
