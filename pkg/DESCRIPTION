@@ -29,7 +29,8 @@ Suggests:
     parallel,
     testthat (>= 3.0.0),
     roxygen2
-License: MIT + file LICENSE
+License: ISC + file LICENSE
+Date: 2026-04-20
 RoxygenNote: 7.3.3
 URL: https://github.com/yagu0/morpheus
 Collate:

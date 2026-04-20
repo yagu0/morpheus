@@ -1,0 +1,12 @@
+bibentry(
+  bibtype = "Manual",
+  title = "morpheus: Estimate Parameters of Mixtures of Logistic Regressions",
+  author = c(
+    person("Benjamin", "Auder"),
+    person("Mor-Absa", "Loum")
+  ),
+  year = "2026",
+  note = "R package version 1.0-5",
+  url = "https://github.com/yagu0/morpheus",
+  header = "To cite package ‘morpheus’ in publications use:"
+)
