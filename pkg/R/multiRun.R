@@ -21,8 +21,12 @@
 #' @return A list of nf aggregates of N results (matrices).
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' β <- matrix(c(1,-2,3,1),ncol=2)
+#'
+#' # This example requires a patch for the flexmix package written by Bettina Grün:
+#' patch_path <- system.file("extdata", "FLXMRglm.R", package = "morpheus")
+#' source(patch_path)
 #'
 #' # Bootstrap + computeMu, morpheus VS flexmix
 #' io <- generateSampleIO(n=1000, p=1/2, β=β, b=c(0,0), "logit")
@@ -84,6 +88,7 @@
 #'   }, N=10, ncores=3)
 #' for (i in 1:2)
 #'   res[[i]] <- alignMatrices(res[[i]], ref=β, ls_mode="exact")}
+#'
 #' @export
 multiRun <- function(fargs, estimParams, packages = c("morpheus"),
   prepareArgs = function(x,i) x, N=10, ncores=3, agg=lapply, verbose=FALSE)

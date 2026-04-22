@@ -1,4 +1,3 @@
-/data/
 /_unversioned/
 
 #ignore roxygen2 generated files
@@ -18,18 +17,16 @@
 !/reports/*.sh
 /vignettes/cache/
 /vignettes/figure/
-/vignettes/report.html
-/vignettes/report.md
+/vignettes/*.html
 /vignettes/*.zip
-/vignettes/report_*/
 
 #ignore R session files
 .Rhistory
 .RData
 
 #ignore R CMD build/check generated files
-/*.Rcheck/
-/*.tar.gz
+*.Rcheck/
+*.tar.gz
 
 #ignore generated object files
 *.[oa]

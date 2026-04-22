@@ -30,7 +30,7 @@
 #'   1/2, matrix(c(1,-2,3,1),ncol=2), c(0,0), "logit")
 #' μ <- computeMu(io$X, io$Y, list(K=2))
 #' o <- optimParams(io$X, io$Y, 2, "logit")
-#' \dontrun{
+#' \donttest{
 #' θ0 <- list(p=1/2, β=μ, b=c(0,0))
 #' par0 <- o$run(θ0)
 #' # Compare with another starting point

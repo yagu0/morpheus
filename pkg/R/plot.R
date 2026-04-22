@@ -29,18 +29,21 @@
 #' @param ... Additional graphical parameters (xlab, ylab, ...)
 #'
 #' @examples
-#' \dontrun{
-#' β <- matrix(c(1,-2,3,1),ncol=2)
-#' mr <- multiRun(...) #see bootstrap example in ?multiRun
-#'                     #mr[[i]] is a list of estimated parameters matrices
-#' μ <- normalize(β)
-#' for (i in 1:2)
-#'   mr[[i]] <- alignMatrices(res[[i]], ref=μ, ls_mode="exact")
-#' plotHist(mr, 2, 1) #second row, first column}
+#' # mr[[i]] is a list of estimated parameters matrices (here random matrices).
+#' # Should be mr <- multiRun(...) --> see bootstrap example in ?multiRun.
+#' simmr_path <- system.file("extdata", "simulateMr.R", package = "morpheus")
+#' source(simmr_path)
+#' mr <- simulateMr(c(2,2), 10)$mr
+#' plotHist(mr, 2, 1) #second row, first column
+#'
+#' @return No return value, called for side effects.
 #'
 #' @export
 plotHist <- function(mr, x, y, ...)
 {
+  oldpar <- par(no.readonly = TRUE)
+  on.exit(par(oldpar))
+
   params <- .extractParam(mr, x, y)
   L <- length(params)
   # Plot histograms side by side
@@ -51,6 +54,7 @@ plotHist <- function(mr, x, y, ...)
       xlab=ifelse("xlab" %in% names(args), args$xlab, "Parameter value"),
       ylab=ifelse("ylab" %in% names(args), args$ylab, "Density"))
   }
+  NULL
 }
 
 # NOTE: roxygen2 bug, "@inheritParams plotHist" fails in next header:
@@ -67,24 +71,29 @@ plotHist <- function(mr, x, y, ...)
 #' @param ... Additional graphical parameters (xlab, ylab, ...)
 #'
 #' @examples
-#' \dontrun{
-#' β <- matrix(c(1,-2,3,1),ncol=2)
-#' mr <- multiRun(...) #see bootstrap example in ?multiRun
-#'                     #mr[[i]] is a list of estimated parameters matrices
-#' μ <- normalize(β)
-#' for (i in 1:2)
-#'   mr[[i]] <- alignMatrices(res[[i]], ref=μ, ls_mode="exact")
-#' plotBox(mr, 2, 1) #second row, first column}
+#' # mr[[i]] is a list of estimated parameters matrices (here random matrices).
+#' # Should be mr <- multiRun(...) --> see bootstrap example in ?multiRun.
+#' simmr_path <- system.file("extdata", "simulateMr.R", package = "morpheus")
+#' source(simmr_path)
+#' source(simmr_path)
+#' mr <- simulateMr(c(2,2), 10)$mr
+#' plotBox(mr, 2, 1) #second row, first column
+#'
+#' @return No return value, called for side effects.
 #'
 #' @export
 plotBox <- function(mr, x, y, ...)
 {
+  oldpar <- par(no.readonly = TRUE)
+  on.exit(par(oldpar))
+
   params <- .extractParam(mr, x, y)
   L <- length(params)
   # Plot boxplots side by side
   par(mfrow=c(1,L), cex.axis=1.5, cex.lab=1.5, mar=c(4.7,5,1,1))
   for (i in 1:L)
     boxplot(params[[i]], ...)
+  NULL
 }
 
 #' plotCoefs
@@ -101,19 +110,22 @@ plotBox <- function(mr, x, y, ...)
 #' @param ... Additional graphical parameters
 #'
 #' @examples
-#' \dontrun{
-#' β <- matrix(c(1,-2,3,1),ncol=2)
-#' mr <- multiRun(...) #see bootstrap example in ?multiRun
-#'                     #mr[[i]] is a list of estimated parameters matrices
-#' μ <- normalize(β)
-#' for (i in 1:2)
-#'   mr[[i]] <- alignMatrices(res[[i]], ref=μ, ls_mode="exact")
-#' params <- rbind( c(.5,.5), β, c(0,0) ) #p, β, b stacked in a matrix
-#' plotCoefs(mr[[1]], params)}
+#' # mr[[i]] is a list of estimated parameters matrices (here random matrices).
+#' # Should be mr <- multiRun(...) --> see bootstrap example in ?multiRun.
+#' simmr_path <- system.file("extdata", "simulateMr.R", package = "morpheus")
+#' source(simmr_path)
+#' mr_θ <- simulateMr(c(3,2), 10)
+#' mr <- mr_θ$mr ; θ <- mr_θ$θ
+#' plotCoefs(mr[[1]], θ)
+#'
+#' @return No return value, called for side effects.
 #'
 #' @export
 plotCoefs <- function(mr, params, ...)
 {
+  oldpar <- par(no.readonly = TRUE)
+  on.exit(par(oldpar))
+
   d <- nrow(mr[[1]])
   K <- ncol(mr[[1]])
 
@@ -142,6 +154,5 @@ plotCoefs <- function(mr, params, ...)
     col=1, lty=c(1,5,3,3), type="l", lwd=2,
     xlab=ifelse("xlab" %in% names(args), args$xlab, "Parameter index"),
     ylab=ifelse("ylab" %in% names(args), args$ylab, "") )
-
-  #print(o) #not returning o to avoid weird Jupyter issue... (TODO:)
+  NULL
 }

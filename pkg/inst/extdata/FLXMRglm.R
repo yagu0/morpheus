@@ -1,3 +1,6 @@
+# Patch provided by Bettina Grün (flexmix author).
+# https://cran.r-project.org/web/packages/flexmix/index.html
+
 FLXMRglm <- function(formula=.~., family=gaussian, offset=NULL)
 {
   if (is.character(family))

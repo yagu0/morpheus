@@ -10,6 +10,7 @@
 #' x <- matrix(c(1,2,-1,3), ncol=2)
 #' normalize(x) #column 1 is 1/sqrt(5) (1 2),
 #'              #and column 2 is 1/sqrt(10) (-1, 3)
+#'
 #' @export
 normalize <- function(x)
 {
@@ -30,6 +31,7 @@ normalize <- function(x)
 #' # Next line should be a real call to multiRun()
 #' mr <- list( list(matrix(c(1,2,3,4),ncol=2),matrix(c(2,2,1,1),ncol=2)) )
 #' p <- pvalue(mr[[1]])
+#'
 #' @export
 pvalue <- function(mr)
 {
