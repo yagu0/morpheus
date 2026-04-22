@@ -1,0 +1,267 @@
+---
+title: Use morpheus package
+
+output:
+  pdf_document:
+    number_sections: true
+    toc_depth: 1
+---
+
+\renewcommand{\P}{\mathrm{P}}
+\newcommand{\R}{\mathbb{R}}
+
+
+
+## Introduction
+<!--Tell that we try to learn classification parameters in a non-EM way, using algebric manipulations.-->
+
+*morpheus* is a contributed R package which attempts to find the parameters of a
+mixture of logistic classifiers.
+When the data under study come from several groups that have different characteristics,
+using mixture models is a very popular way to handle heterogeneity.
+Thus, many algorithms were developed to deal with various mixtures models.
+Most of them use likelihood methods or Bayesian methods that are likelihood dependent.
+*flexmix* is an R package which implements these kinds of algorithms.
+
+However, one problem of such methods is that they can converge to local maxima,
+so several starting points must be explored.
+Recently, spectral methods were developed to bypass EM algorithms and they were proved
+able to recover the directions of the regression parameter
+in models with known link function and random covariates (see [XX]).
+Our package extends such moment methods using least squares to get estimators of the
+whole parameters (with theoretical garantees, see [XX]).
+Currently it can handle only binary output $-$ which is a common case.
+
+## Model
+
+Let $X\in \R^{d}$ be the vector of covariates and $Y\in \{0,1\}$ be the binary output.
+A binary regression model assumes that for some link function $g$, the probability that
+$Y=1$ conditionally to $X=x$ is given by $g(\langle \beta, x \rangle +b)$, where
+$\beta\in \R^{d}$ is the vector of regression coefficients and $b\in\R$ is the intercept.
+Popular examples of link functions are the logit link function where for any real $z$,
+$g(z)=e^z/(1+e^z)$ and the probit link function where $g(z)=\Phi(z),$ with $\Phi$
+the cumulative distribution function of the standard normal ${\mathcal N}(0,1)$.
+Both are implemented in the package.
+
+If now we want to modelise heterogeneous populations, let $K$ be the number of
+populations and $\omega=(\omega_1,\cdots,\omega_K)$ their weights such that
+$\omega_{j}\geq 0$, $j=1,\ldots,K$ and $\sum_{j=1}^{K}\omega_{j}=1$.
+Define, for $j=1,\ldots,K$, the regression coefficients in the $j$-th population
+by $\beta_{j}\in\R^{d}$ and the intercept in the $j$-th population by
+$b_{j}\in\R$. Let $\omega =(\omega_{1},\ldots,\omega_{K})$,
+$b=(b_1,\cdots,b_K)$, $\beta=[\beta_{1} \vert \cdots,\vert \beta_K]$ the $d\times K$
+matrix of regression coefficients and denote $\theta=(\omega,\beta,b)$.
+The model of population mixture of binary regressions is given by:
+
+\begin{equation}
+\label{mixturemodel1}
+\P_{\theta}(Y=1\vert X=x)=\sum^{K}_{k=1}\omega_k g(<\beta_k,x>+b_k).
+\end{equation}
+
+## Algorithm, theoretical garantees
+
+The algorithm uses spectral properties of some tensor matrices to estimate the model
+parameters $\Theta = (\omega, \beta, b)$. Under rather mild conditions it can be
+proved that the algorithm converges to the correct values (its speed is known too).
+For more informations on that subject, however, please refer to our article [XX].
+In this vignette let's rather focus on package usage.
+
+## Usage
+<!--We assume that the random variable $X$ has a Gaussian distribution.
+We now focus on the situation where $X\sim \mathcal{N}(0,I_d)$, $I_d$ being the
+identity $d\times d$ matrix. All results may be easily extended to the situation
+where $X\sim \mathcal{N}(m,\Sigma)$, $m\in \R^{d}$, $\Sigma$ a positive and
+symetric $d\times d$ matrix. ***** TODO: take this into account? -->
+
+The two main functions are:
+
+ * computeMu(), which estimates the parameters directions, and
+ * optimParams(), which builds an object \code{o} to estimate all other parameters
+   when calling \code{o$run()}, starting from the directions obtained by the
+   previous function.
+
+A third function is useful to run Monte-Carlo or bootstrap estimations using
+different models in various contexts: multiRun(). We'll show example for all of them.
+
+### Estimation of directions
+
+In a real situation you would have (maybe after some pre-processing) the matrices
+X and Y which contain vector inputs and binary output.
+However, a function is provided in the package to generate such data following a
+pre-defined law:
+
+
+``` r
+library(morpheus)
+io <- generateSampleIO(n=10000, p=1/2, beta=matrix(c(1,0,0,1),ncol=2), b=c(0,0), link="probit")
+# io$X and io$Y contain the sample data
+```
+
+$n$ is the total number of samples (lines in X, number of elements in Y)
+$p$ is a vector of proportions, of size $d-1$ (because the last proportion is deduced
+from the others: $p$ elements sums to 1) [TODO: omega or p?]
+$\beta$ is the matrix of linear coefficients, as written above in the model.
+$b$ is the vector of intercepts (as in linear regression, and as in the model above)
+link can be either "logit" or "probit", as mentioned earlier.
+
+This function outputs a list containing in particular the matrices X and Y, allowing to
+use the other functions (which all require either these, or the moments).
+
+
+``` r
+mu <- computeMu(io$X, io$Y, optargs=list(K=2))
+```
+
+The optional argument, "optargs", is a list which can provide
+
+ * the number of clusters $K$,
+ * the moments matrix $M$ (computed with the "computeMoments()" function),
+ * the joint-diagonalisation method ("uwedge" or "jedi"),
+ * the number of random vectors for joint-diagonalization.
+
+See ?computeMu and the code for more details.
+
+### Estimation of the other parameters
+
+The other parameters are estimated by solving an optimization problem.
+The following function builds and return an optimization algorithm object:
+
+
+``` r
+# M <- computeMoments(io$X, io$Y) #optional (if several runs)
+algopt <- optimParams(io$X, io$Y, K=2, link="probit") #, M=M)
+# Optimization starts at beta = mu, b = 0 and p = uniform distribution
+x0 <- list(beta = mu)
+theta <- algopt$run(x0)
+```
+
+```
+Loading required package: MASS
+```
+
+Now theta is a list with three slots:
+
+ * $p$: estimated proportions,
+ * $\beta$: estimated regression matrix,
+ * $b$: estimated bias.
+
+### Monte-Carlo and bootstrap
+
+The package provides a function to compare methods on several computations on random data.
+It takes in input a list of parameters, then a list of functions which output some quantities
+(on the first example, our "computeMu()" method versus flexmix way of estimating directions),
+and finally a method to prepare the arguments which will be given to the functions in the
+list just mentioned; this allows to run Monte-Carlo estimations with the exact same samples
+for each compared method. The two last arguments to "multiRun()" control the number of runs,
+and the number of cores (using the package parallel).
+
+
+``` r
+beta <- matrix(c(1,-2,3,1), ncol=2)
+io <- generateSampleIO(n=1000, p=1/2, beta=beta, b=c(0,0), "logit")
+mu <- normalize(beta)
+
+# Example 1: bootstrap + computeMu, morpheus VS flexmix; assumes fargs first 3 elts X,Y,K
+mr1 <- multiRun(list(X=io$X,Y=io$Y,optargs=list(K=2,jd_nvects=0)), list(
+  # morpheus
+  function(fargs) {
+    library(morpheus)
+    ind <- fargs$ind
+    computeMu(fargs$X[ind,],fargs$Y[ind],fargs$optargs)
+  },
+  # flexmix
+  function(fargs) {
+    library(flexmix)
+    source("../patch_Bettina/FLXMRglm.R")
+    ind <- fargs$ind
+    K <- fargs$optargs$K
+    dat = as.data.frame( cbind(fargs$Y[ind],fargs$X[ind,]) )
+    out = refit( flexmix( cbind(V1, 1 - V1) ~ 0+., data=dat, k=K,
+      model=FLXMRglm(family="binomial") ) )
+    normalize( matrix(out@coef[1:(ncol(fargs$X)*K)], ncol=K) )
+  } ),
+  prepareArgs = function(fargs,index) {
+    # Always include the non-shuffled dataset
+    if (index == 1)
+      fargs$ind <- 1:nrow(fargs$X)
+    else
+      fargs$ind <- sample(1:nrow(fargs$X),replace=TRUE)
+    fargs
+  }, N=10, ncores=3)
+# The result is correct up to matrices columns permutations; align them:
+for (i in 1:2)
+  mr1[[i]] <- alignMatrices(mr1[[i]], ref=mu, ls_mode="exact")
+```
+
+Several plots are available: histograms, boxplots, or curves of coefficients.
+We illustrate boxplots and curves here (histograms function uses the same arguments,
+see ?plotHist).
+
+
+``` r
+# Second row, first column; morpheus on the left, flexmix on the right
+plotBox(mr1, 2, 1, main="Target value: -1")
+```
+
+<div class="figure" style="text-align: center">
+<img src="figure/unnamed-chunk-5-1.png" alt="plot of chunk unnamed-chunk-5" width="100%" />
+<p class="caption">plot of chunk unnamed-chunk-5</p>
+</div>
+
+
+``` r
+# Example 2: Monte-Carlo + optimParams from X,Y, morpheus VS flexmix; first args n,p,beta,b
+mr2 <- multiRun(list(n=1000,p=1/2,beta=beta,b=c(0,0),optargs=list(link="logit")), list(
+  # morpheus
+  function(fargs) {
+    library(morpheus)
+    mu <- computeMu(fargs$X, fargs$Y, fargs$optargs)
+    optimParams(fargs$X,fargs$Y,fargs$K,fargs$link,fargs$M)$run(list(beta=mu))$beta
+  },
+  # flexmix
+  function(fargs) {
+    library(flexmix)
+    source("../patch_Bettina/FLXMRglm.R")
+    dat <- as.data.frame( cbind(fargs$Y,fargs$X) )
+    out <- refit( flexmix( cbind(V1, 1 - V1) ~ 0+., data=dat, k=fargs$K,
+      model=FLXMRglm(family="binomial") ) )
+    sapply( seq_len(fargs$K), function(i) as.double( out@components[[1]][[i]][,1] ) )
+  } ),
+  prepareArgs = function(fargs,index) {
+    library(morpheus)
+    io = generateSampleIO(fargs$n, fargs$p, fargs$beta, fargs$b, fargs$optargs$link)
+    fargs$X = io$X
+    fargs$Y = io$Y
+    fargs$K = ncol(fargs$beta)
+    fargs$link = fargs$optargs$link
+    fargs$M = computeMoments(io$X,io$Y)
+    fargs
+  }, N=10, ncores=3)
+# As in example 1, align results:
+for (i in 1:2)
+  mr2[[i]] <- alignMatrices(mr2[[i]], ref=beta, ls_mode="exact")
+```
+
+
+``` r
+# Second argument = true parameters matrix; third arg = index of method (here "morpheus")
+plotCoefs(mr2[[1]], beta, 1)
+```
+
+<div class="figure" style="text-align: center">
+<img src="figure/unnamed-chunk-7-1.png" alt="plot of chunk unnamed-chunk-7" width="100%" />
+<p class="caption">plot of chunk unnamed-chunk-7</p>
+</div>
+
+``` r
+plotCoefs(mr2[[2]], beta, 1)
+```
+
+<div class="figure" style="text-align: center">
+<img src="figure/unnamed-chunk-7-2.png" alt="plot of chunk unnamed-chunk-7" width="100%" />
+<p class="caption">plot of chunk unnamed-chunk-7</p>
+</div>
+
+``` r
+# Real params are on the continous line; estimations = dotted line
+```

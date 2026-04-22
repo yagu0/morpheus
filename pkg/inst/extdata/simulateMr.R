@@ -3,20 +3,22 @@
 # Simulate an output of multiRun(...), because this function is a little
 # complicated to call in an example (see ?multiRun).
 #
-#' β <- matrix(c(1,-2,3,1),ncol=2)
-
-
-# theta, not beta here (more general)
-.simulateMr(
-#' # mr[[i]] is a list of estimated parameters matrices (here random matrices).
-#' # Should be mr <- multiRun(...) --> see bootstrap example in ?multiRun.
-#' mr <- list()
-#' μ <- normalize(β)
-#' for (i in 1:2) {
-#'   mr[[i]] <- list()
-#'   for (j in 1:3)
-#'     mr[[i]][[j]] <- β + matrix(rnorm(4,sd=0.25),ncol=2)
-#'   mr[[i]] <- alignMatrices(mr[[i]], ref=β, ls_mode="exact") --> TODO: align in same function
-#' }
-
-            list(theta = ..., mr = ...)
+# Usage: simulateMr(c(nrow, ncol), N)
+# where nrow,ncol = dimension of the parameter and N = number of "runs"
+#
+# Always length(mr) == 2 and random parameter + noise, to not over-parameterize.
+#
+# Return a list with mr = simulated multiRun() output, and θ = parameter matrix.
+simulateMr <- function(dims, N)
+{
+  library(morpheus)
+  mr <- list()
+  θ <- matrix(runif(min=-5,max=5,n=dims[1]*dims[2]), ncol=dims[1])
+  for (i in 1:2) {
+    mr[[i]] <- list()
+    for (j in 1:N)
+      mr[[i]][[j]] <- θ + matrix(rnorm(dims[1]*dims[2],sd=0.25),ncol=dims[1])
+    mr[[i]] <- alignMatrices(mr[[i]], ref=θ, ls_mode="exact")
+  }
+  list(mr = mr, θ = θ)
+}

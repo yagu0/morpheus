@@ -1,0 +1,19 @@
+I did my best to fix the issues as indicated by Konstanze (thank you ! I wasn't aware of on.exit at least..).
+
+> Please add \value to .Rd files regarding exported methods.
+
+I added "\value{No return value, called for side effects}" to all plotting functions, and explicitely return NULL.
+
+> \dontrun{} should only be used if the example really cannot be executed. Please replace \dontrun with \donttest.
+
+Done: now only two \donttest and 0 \dontrun. I added R files under inst/extdata useful to run these examples, hoping it'll be fine.
+
+> Please make sure that you do not change the user's options, par.
+
+Added these two lines at the beginning of the three graphical functions:
+oldpar <- par(no.readonly = TRUE)
+on.exit(par(oldpar))
+
+=====
+
+To be complete, I also improved the multiRun() function now taking a vector of packages to load on each node (wether computations are parallelized or not).

@@ -53,7 +53,7 @@
 #'     else
 #'       fargs$ind <- sample(1:nrow(fargs$X),replace=TRUE)
 #'     fargs
-#'   }, N=10, ncores=3)
+#'   }, N=10, ncores=1) #ncores=3
 #' for (i in 1:2)
 #'   res[[i]] <- alignMatrices(res[[i]], ref=μ, ls_mode="exact")
 #'
@@ -85,7 +85,7 @@
 #'     fargs$link <- fargs$link
 #'     fargs$M <- computeMoments(io$X,io$Y)
 #'     fargs
-#'   }, N=10, ncores=3)
+#'   }, N=10, ncores=1) #ncores=3
 #' for (i in 1:2)
 #'   res[[i]] <- alignMatrices(res[[i]], ref=β, ls_mode="exact")}
 #'
