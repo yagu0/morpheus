@@ -10,9 +10,26 @@ export(optimParams)
 export(plotBox)
 export(plotCoefs)
 export(plotHist)
-importFrom(graphics,barplot,boxplot,hist,matplot,par)
+export(pvalue)
+importFrom(graphics,
+  barplot,
+  boxplot,
+  hist,
+  matplot,
+  par
+)
 importFrom(jointDiag,ajd)
 importFrom(methods,new)
 importFrom(pracma,integral)
-importFrom(stats,integrate,pnorm,rbinom,rmultinom,rnorm,runif,sd,pchisq,var)
+importFrom(stats,
+  integrate,
+  pchisq,
+  pnorm,
+  rbinom,
+  rmultinom,
+  rnorm,
+  runif,
+  sd,
+  var
+)
 useDynLib(morpheus, .registration = TRUE)

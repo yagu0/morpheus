@@ -143,7 +143,6 @@ setRefClass(
     {
       "Compute the weights matrix from a parameters list"
 
-      require(MASS)
       dd <- d + d^2 + d^3
       M <- Moments(θ)
       Omega <- matrix( .C("Compute_Omega",
@@ -321,23 +320,26 @@ setRefClass(
   # NOTE: weird "integral divergent" error on inputs:
   # link="probit"; order=2; λ=c(531.8099,586.8893,523.5816); b=c(-118.512674,-3.488020,2.109969)
   # Switch to pracma package for that (but it seems slow...)
-  sapply( seq_along(λ), function(k) {
-    res <- NULL
-    tryCatch({
+  vapply( seq_along(λ), function(k) {
+    integrand <- function(z)
+      .deriv[[link]][[order]](λ[k]*z+b[k]) * exp(-z^2/2) / sqrt(2*pi)
+    # NOTE: the value must be *returned* by tryCatch (an assignment inside the
+    # error handler would only modify a local variable of the handler).
+    tryCatch(
       # Fast code, may fail:
-      res <- stats::integrate(
-        function(z) .deriv[[link]][[order]](λ[k]*z+b[k]) * exp(-z^2/2) / sqrt(2*pi),
-        lower=-Inf, upper=Inf )$value
-    }, error = function(e) {
-      # Robust slow code, no fails observed:
-      sink("/dev/null") #pracma package has some useless printed outputs...
-      res <- pracma::integral(
-        function(z) .deriv[[link]][[order]](λ[k]*z+b[k]) * exp(-z^2/2) / sqrt(2*pi),
-        xmin=-Inf, xmax=Inf, method="Kronrod")
-      sink()
-    })
-    res
-  })
+      stats::integrate(integrand, lower=-Inf, upper=Inf)$value,
+      error = function(e) {
+        # Robust slow code, no fails observed.
+        # pracma package has some useless printed outputs: silence them
+        # without touching the user's sink() stack.
+        out <- NULL
+        utils::capture.output({
+          out <- pracma::integral(integrand, xmin=-Inf, xmax=Inf, method="Kronrod")
+        })
+        out
+      }
+    )
+  }, numeric(1) )
 }
 
 # Derivatives list: g^(k)(x) for links 'logit' and 'probit'

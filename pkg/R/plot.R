@@ -123,9 +123,6 @@ plotBox <- function(mr, x, y, ...)
 #' @export
 plotCoefs <- function(mr, params, ...)
 {
-  oldpar <- par(no.readonly = TRUE)
-  on.exit(par(oldpar))
-
   d <- nrow(mr[[1]])
   K <- ncol(mr[[1]])
 
@@ -142,7 +139,11 @@ plotCoefs <- function(mr, params, ...)
     }
   }
 
-  par(cex.axis=1.5, cex.lab=1.5, mar=c(4.7,5,1,1))
+  oldpar <- par(cex.axis=1.5, cex.lab=1.5, mar=c(4.7,5,1,1))
+  # Save/restore only the parameters modified here: restoring the full par()
+  # would also reset the current panel (mfg) and break par(mfrow=...) layouts.
+  on.exit(par(oldpar))
+
   params <- as.double(params)
   o <- order(params)
   avg_param <- as.double(params_hat)

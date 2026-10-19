@@ -5,9 +5,9 @@ Description: Mixture of logistic regressions parameters (H)estimation with
     (U)spectral methods. The main methods take d-dimensional inputs and a vector
     of binary outputs, and return parameters according to the GLMs mixture model
     (General Linear Model). For more details see chapter 3 in the PhD thesis of
-		Mor-Absa Loum: <https://theses.fr/s156435>, available here
+		Mor-Absa Loum: <https://theses.fr/2018SACLS299>, available here
 		<https://theses.hal.science/tel-01877796/document>.
-Version: 1.0-5
+Version: 1.0-6
 Authors@R: c(person(given = "Benjamin",
                     family = "Auder",
                     role = c("aut", "cre"),
@@ -22,7 +22,8 @@ Imports:
     MASS,
     jointDiag,
     methods,
-    pracma
+    pracma,
+    utils
 Suggests:
     devtools,
     flexmix,
@@ -31,7 +32,6 @@ Suggests:
     roxygen2
 License: MIT + file LICENSE
 Date: 2026-04-22
-RoxygenNote: 7.3.3
 URL: https://github.com/yagu0/morpheus
 Collate:
     'utils.R'
